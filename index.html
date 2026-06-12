@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smurf Guardian - Seu Defensor Digital</title>
+    <link rel="icon" type="image/png" href="smurf-logo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #378ADD;
+            --color-secondary: #1D9E75;
+            --color-dark: #0f1621;
+            --color-dark-alt: #1a2a3a;
+            --color-gray-light: #B0B8D4;
+            --color-gray: #888780;
+            --color-white: #FFFFFF;
+            --color-bg: #0f1621;
+            --color-surface: #1a2a3a;
+            --color-success: #27ae60;
+            --color-warning: #f39c12;
+            --color-danger: #e74c3c;
+
+            --font-size-base: 16px;
+            --font-size-sm: 14px;
+            --font-size-lg: 18px;
+            --font-size-xl: 24px;
+
+            --line-height: 1.6;
+            --spacing: 1;
+            --cursor-size: 20px;
+
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-white);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height);
+            overflow-x: hidden;
+        }
+
+        /* DARK MODE PADRÃO */
+        body.dark-mode {
+            --color-bg: #0f1621;
+            --color-surface: #1a2a3a;
+        }
+
+        /* LIGHT MODE */
+        body.light-mode {
+            --color-bg: #f5f7fa;
+            --color-surface: #ffffff;
+            --color-white: #1a1a1a;
+        }
+
+        /* CONTAINER PRINCIPAL */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            background-color: var(--color-surface);
+            border-right: 2px solid var(--color-primary);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--color-primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .sidebar-title {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-light);
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            color: var(--color-gray-light);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            border: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            background-color: var(--color-dark-alt);
+            color: var(--color-primary);
+        }
+
+        .nav-link.active {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border-color: var(--color-secondary);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+            overflow-y: auto;
+            background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-dark-alt) 100%);
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--color-primary);
+        }
+
+        .header-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: none;
+            border: 2px solid var(--color-primary);
+            color: var(--color-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: var(--transition);
+        }
+
+        .btn-icon:hover {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+        }
+
+        /* SECTIONS */
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DASHBOARD */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--color-surface);
+            border: 2px solid var(--color-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(55, 138, 221, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--color-surface);
+            border: 2px solid var(--color-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .card-title {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* PASSWORD ITEM */
+        .password-item {
+            background: var(--color-dark-alt);
+            border-left: 4px solid var(--color-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .password-item:hover {
+            box-shadow: 0 5px 15px rgba(29, 158, 117, 0.2);
+        }
+
+        .password-info {
+            flex: 1;
+        }
+
+        .password-service {
+            font-weight: 700;
+            color: var(--color-white);
+            margin-bottom: 0.25rem;
+        }
+
+        .password-user {
+            font-size: var(--font-size-sm);
+            color: var(--color-gray-light);
+        }
+
+        .strength-indicator {
+            display: inline-block;
+            width: 120px;
+            height: 6px;
+            background-color: var(--color-gray);
+            border-radius: 3px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+
+        .strength-bar.weak { background-color: var(--color-danger); width: 25%; }
+        .strength-bar.fair { background-color: var(--color-warning); width: 50%; }
+        .strength-bar.good { background-color: var(--color-primary); width: 75%; }
+        .strength-bar.strong { background-color: var(--color-secondary); width: 100%; }
+
+        .password-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            background: var(--color-primary);
+            border: none;
+            color: var(--color-white);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: var(--transition);
+        }
+
+        .btn-action:hover {
+            background: var(--color-secondary);
+        }
+
+        /* FORMS */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--color-gray-light);
+            font-size: var(--font-size-sm);
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--color-dark-alt);
+            border: 2px solid var(--color-primary);
+            color: var(--color-white);
+            border-radius: 6px;
+            font-size: var(--font-size-base);
+            transition: var(--transition);
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(55, 138, 221, 0.3);
+            border-color: var(--color-secondary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        /* BUTTON */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--color-secondary);
+            color: var(--color-white);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--color-primary);
+        }
+
+        .btn-danger {
+            background-color: var(--color-danger);
+            color: var(--color-white);
+        }
+
+        .btn-danger:hover {
+            opacity: 0.8;
+        }
+
+        /* SLIDER */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .slider-input {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, var(--color-danger), var(--color-warning), var(--color-primary), var(--color-secondary));
+            outline: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--color-primary);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid var(--color-white);
+        }
+
+        .slider-input::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--color-primary);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid var(--color-white);
+        }
+
+        .slider-value {
+            min-width: 60px;
+            text-align: right;
+            font-weight: 700;
+            color: var(--color-secondary);
+        }
+
+        /* CHECKBOXES */
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+
+        /* ACCESSIBILITY SETTINGS */
+        .accessibility-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .accessibility-option {
+            background: var(--color-dark-alt);
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .accessibility-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            margin-bottom: 0.75rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background-color: var(--color-gray);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .toggle-switch.active {
+            background-color: var(--color-secondary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background-color: var(--color-white);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 27px;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--color-surface);
+            border: 2px solid var(--color-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: var(--color-gray-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .btn-close:hover {
+            color: var(--color-white);
+        }
+
+        /* ALERTS */
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background-color: rgba(39, 174, 96, 0.2);
+            border-left: 4px solid var(--color-success);
+            color: var(--color-success);
+        }
+
+        .alert-warning {
+            background-color: rgba(243, 156, 18, 0.2);
+            border-left: 4px solid var(--color-warning);
+            color: var(--color-warning);
+        }
+
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.2);
+            border-left: 4px solid var(--color-danger);
+            color: var(--color-danger);
+        }
+
+        /* RESPONSIVENESS */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 2px solid var(--color-primary);
+                padding: 1rem 0;
+                position: relative;
+                left: 0;
+                top: 0;
+            }
+
+            .nav-list {
+                display: flex;
+                gap: 0.5rem;
+                padding: 0 1rem;
+                overflow-x: auto;
+            }
+
+            .nav-item {
+                flex-shrink: 0;
+                margin-bottom: 0;
+            }
+
+            .nav-link {
+                padding: 0.75rem 1rem;
+                font-size: var(--font-size-sm);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .app-container {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+
+            .accessibility-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ACESSIBILIDADE - ALTO CONTRASTE */
+        body.high-contrast {
+            --color-primary: #FFFF00;
+            --color-secondary: #00FF00;
+            --color-white: #FFFFFF;
+            --color-bg: #000000;
+            --color-surface: #1a1a1a;
+            --color-gray-light: #FFFFFF;
+        }
+
+        /* ACESSIBILIDADE - REDUZIR ANIMAÇÕES */
+        body.reduce-motion * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        /* ACESSIBILIDADE - TAMANHO DA FONTE */
+        body.font-size-small { --font-size-base: 14px; }
+        body.font-size-medium { --font-size-base: 16px; }
+        body.font-size-large { --font-size-base: 18px; }
+        body.font-size-extra-large { --font-size-base: 20px; }
+
+        /* ACESSIBILIDADE - ESPAÇAMENTO */
+        body.spacing-small { --spacing: 0.8; }
+        body.spacing-medium { --spacing: 1; }
+        body.spacing-large { --spacing: 1.2; }
+
+        /* ACESSIBILIDADE - FONTE DISLEXIA */
+        body.font-dyslexia {
+            font-family: 'OpenDyslexic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        /* SKIP LINKS */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--color-primary);
+            color: var(--color-white);
+            padding: 8px;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* RESPONSIVE FONT SIZES */
+        body.font-size-small { font-size: 13px; }
+        body.font-size-large { font-size: 19px; }
+        body.font-size-extra-large { font-size: 21px; }
+
+        body.line-height-large { line-height: 2; }
+        body.line-height-extra-large { line-height: 2.5; }
+
+        /* CURSOR CUSTOMIZADO */
+        body.cursor-large {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="none" stroke="%23378ADD" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="%23378ADD"/></svg>') 16 16, auto;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <a href="#main-content" class="skip-link">Pular para conteúdo principal</a>
+    
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="smurf-logo.png" alt="Smurf Guardian" style="width: 80px; height: 80px; margin: 0 auto 0.5rem; display: block; filter: drop-shadow(0 0 8px rgba(55, 138, 221, 0.5));">
+                <div class="sidebar-title">Smurf Guardian</div>
+                <div class="sidebar-subtitle">Seu Defensor Digital</div>
+            </div>
+
+            <nav class="nav-list">
+                <li class="nav-item">
+                    <a class="nav-link active" data-section="dashboard">📊 Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="vault">🔐 Cofre de Senhas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="generator">✨ Gerador de Senhas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="accessibility">♿ Acessibilidade</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="settings">⚙️ Configurações</a>
+                </li>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content" id="main-content">
+            <!-- DASHBOARD SECTION -->
+            <section class="section active" id="dashboard">
+                <div class="header">
+                    <h1 class="header-title">📊 Dashboard</h1>
+                    <div class="header-controls">
+                        <button class="btn-icon" id="theme-toggle" title="Alternar tema">🌙</button>
+                        <button class="btn-icon" id="menu-toggle" title="Menu">☰</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-passwords">0</div>
+                        <div class="stat-label">Senhas Salvas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="strong-passwords">0</div>
+                        <div class="stat-label">Senhas Fortes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="weak-passwords">0</div>
+                        <div class="stat-label">Senhas Fracas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="security-score">0%</div>
+                        <div class="stat-label">Score de Segurança</div>
+                    </div>
+                </div>
+
+                <div id="alerts-container"></div>
+
+                <div class="card">
+                    <div class="card-title">⚡ Atalhos Rápidos</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        <button class="btn btn-primary" onclick="navigateTo('vault')">Ir para Cofre</button>
+                        <button class="btn btn-secondary" onclick="navigateTo('generator')">Gerar Senha</button>
+                        <button class="btn btn-primary" onclick="navigateTo('settings')">Configurações</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VAULT SECTION -->
+            <section class="section" id="vault">
+                <div class="header">
+                    <h1 class="header-title">🔐 Cofre de Senhas</h1>
+                    <button class="btn btn-primary" onclick="openAddPasswordModal()">+ Adicionar Senha</button>
+                </div>
+
+                <div class="card">
+                    <input type="text" class="form-input" id="search-passwords" placeholder="🔍 Buscar senhas..." style="margin-bottom: 1rem;">
+                    <div id="passwords-list"></div>
+                </div>
+            </section>
+
+            <!-- GENERATOR SECTION -->
+            <section class="section" id="generator">
+                <div class="header">
+                    <h1 class="header-title">✨ Gerador de Senhas</h1>
+                </div>
+
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label">Tamanho da Senha</label>
+                        <div class="slider-container">
+                            <input type="range" id="password-length" class="slider-input" min="4" max="32" value="16">
+                            <span class="slider-value"><span id="length-display">16</span> caracteres</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tipos de Caracteres</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="uppercase" class="checkbox-input" checked>
+                                <label for="uppercase">Maiúsculas (A-Z)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="lowercase" class="checkbox-input" checked>
+                                <label for="lowercase">Minúsculas (a-z)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="numbers" class="checkbox-input" checked>
+                                <label for="numbers">Números (0-9)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="symbols" class="checkbox-input" checked>
+                                <label for="symbols">Símbolos (!@#$%^&*)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Senha Gerada</label>
+                        <div style="display: flex; gap: 0.75rem; align-items: center;">
+                            <input type="text" id="generated-password" class="form-input" readonly>
+                            <button class="btn btn-primary" onclick="copyToClipboard('generated-password')">📋 Copiar</button>
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <small style="color: var(--color-gray-light);">Força: <span id="password-strength">Média</span></small>
+                            <div class="strength-indicator">
+                                <div id="generated-strength-bar" class="strength-bar fair"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button class="btn btn-secondary" onclick="generatePassword()">🔄 Regenerar</button>
+                        <button class="btn btn-primary" onclick="saveGeneratedPassword()">💾 Salvar no Cofre</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACCESSIBILITY SECTION -->
+            <section class="section" id="accessibility">
+                <div class="header">
+                    <h1 class="header-title">♿ Acessibilidade</h1>
+                </div>
+
+                <div class="accessibility-options">
+                    <div class="accessibility-option">
+                        <label class="accessibility-label">
+                            <span>Modo Escuro/Claro</span>
+                            <div class="toggle-switch active" id="toggle-dark-mode" onclick="toggleDarkMode()">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="accessibility-option">
+                        <label class="accessibility-label">
+                            <span>Alto Contraste</span>
+                            <div class="toggle-switch" id="toggle-high-contrast" onclick="toggleHighContrast()">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="accessibility-option">
+                        <label class="accessibility-label">
+                            <span>Reduzir Animações</span>
+                            <div class="toggle-switch" id="toggle-reduce-motion" onclick="toggleReduceMotion()">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="accessibility-option">
+                        <label class="accessibility-label">
+                            <span>Fonte para Dislexia</span>
+                            <div class="toggle-switch" id="toggle-dyslexia-font" onclick="toggleDyslexiaFont()">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="accessibility-option">
+                        <label class="accessibility-label">
+                            <span>Cursor Ampliado</span>
+                            <div class="toggle-switch" id="toggle-large-cursor" onclick="toggleLargeCursor()">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="accessibility-option">
+                        <label class="form-label">Tamanho da Fonte</label>
+                        <select id="font-size" class="form-select" onchange="changeFontSize(this.value)">
+                            <option value="">Padrão (16px)</option>
+                            <option value="font-size-small">Pequeno (14px)</option>
+                            <option value="font-size-large">Grande (18px)</option>
+                            <option value="font-size-extra-large">Extra Grande (20px)</option>
+                        </select>
+                    </div>
+
+                    <div class="accessibility-option">
+                        <label class="form-label">Espaçamento de Linhas</label>
+                        <select id="line-height" class="form-select" onchange="changeLineHeight(this.value)">
+                            <option value="">Padrão (1.6)</option>
+                            <option value="line-height-large">Aumentado (2.0)</option>
+                            <option value="line-height-extra-large">Extra (2.5)</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETTINGS SECTION -->
+            <section class="section" id="settings">
+                <div class="header">
+                    <h1 class="header-title">⚙️ Configurações</h1>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🌐 Preferências Gerais</div>
+                    <div class="form-group">
+                        <label class="form-label">Idioma</label>
+                        <select class="form-select">
+                            <option>Português (Brasil)</option>
+                            <option>English</option>
+                            <option>Español</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔒 Segurança</div>
+                    <div class="form-group">
+                        <label class="form-label">Tempo para Bloqueio Automático (minutos)</label>
+                        <input type="number" class="form-input" value="15" min="1">
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="require-master" class="checkbox-input" checked>
+                            <label for="require-master">Exigir Senha Mestra</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Dados</div>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="exportPasswords()">📥 Exportar Cofre</button>
+                        <button class="btn btn-primary" onclick="document.getElementById('import-input').click()">📤 Importar Cofre</button>
+                        <input type="file" id="import-input" style="display: none;" onchange="importPasswords(event)">
+                        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpar Dados</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">ℹ️ Sobre</div>
+                    <p style="margin-bottom: 1rem;">
+                        <strong>Smurf Guardian v1.0</strong><br>
+                        Seu Defensor Digital<br><br>
+                        Desenvolvido com ❤️ por: Isaac Machado, Diogo Gabriel, Nadson da Conceição, Luís Henrique, Arthur Santos, Gabriel Evangelista<br><br>
+                        <a href="#" style="color: var(--color-primary); text-decoration: none;">GitHub</a> | 
+                        <a href="#" style="color: var(--color-primary); text-decoration: none;">Website</a>
+                    </p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ADD PASSWORD MODAL -->
+    <div class="modal" id="add-password-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Adicionar Nova Senha</span>
+                <button class="btn-close" onclick="closeModal('add-password-modal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nome do Serviço</label>
+                <input type="text" id="modal-service" class="form-input" placeholder="ex: Gmail, GitHub, Netflix">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Usuário/Email</label>
+                <input type="text" id="modal-user" class="form-input" placeholder="seu@email.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" id="modal-password" class="form-input" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Observações (opcional)</label>
+                <textarea id="modal-notes" class="form-textarea" placeholder="Anotações adicionais..."></textarea>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="savePassword()">💾 Salvar</button>
+                <button class="btn btn-secondary" onclick="closeModal('add-password-modal')">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // STATE
+        let passwords = JSON.parse(localStorage.getItem('smurf_passwords')) || [];
+        let generatedPassword = '';
+
+        // UTILITIES
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (password.length >= 16) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            if (strength <= 2) return { level: 'weak', class: 'weak' };
+            if (strength <= 4) return { level: 'fair', class: 'fair' };
+            if (strength <= 5) return { level: 'good', class: 'good' };
+            return { level: 'strong', class: 'strong' };
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            navigator.clipboard.writeText(element.value).then(() => {
+                const originalText = element.value;
+                element.value = '✓ Copiado!';
+                setTimeout(() => { element.value = originalText; }, 2000);
+            });
+        }
+
+        function navigateTo(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            document.querySelector(`[data-section="${section}"]`).classList.add('active');
+        }
+
+        // NAVBAR
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const section = e.target.dataset.section;
+                navigateTo(section);
+            });
+        });
+
+        // THEME TOGGLE
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('smurf_dark_mode', isDark);
+            document.getElementById('toggle-dark-mode').classList.toggle('active');
+            document.getElementById('theme-toggle').textContent = isDark ? '🌙' : '☀️';
+        }
+
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+            localStorage.setItem('smurf_high_contrast', document.body.classList.contains('high-contrast'));
+            document.getElementById('toggle-high-contrast').classList.toggle('active');
+        }
+
+        function toggleReduceMotion() {
+            document.body.classList.toggle('reduce-motion');
+            localStorage.setItem('smurf_reduce_motion', document.body.classList.contains('reduce-motion'));
+            document.getElementById('toggle-reduce-motion').classList.toggle('active');
+        }
+
+        function toggleDyslexiaFont() {
+            document.body.classList.toggle('font-dyslexia');
+            localStorage.setItem('smurf_dyslexia_font', document.body.classList.contains('font-dyslexia'));
+            document.getElementById('toggle-dyslexia-font').classList.toggle('active');
+        }
+
+        function toggleLargeCursor() {
+            document.body.classList.toggle('cursor-large');
+            localStorage.setItem('smurf_large_cursor', document.body.classList.contains('cursor-large'));
+            document.getElementById('toggle-large-cursor').classList.toggle('active');
+        }
+
+        function changeFontSize(value) {
+            document.body.classList.remove('font-size-small', 'font-size-large', 'font-size-extra-large');
+            if (value) {
+                document.body.classList.add(value);
+                localStorage.setItem('smurf_font_size', value);
+            } else {
+                localStorage.removeItem('smurf_font_size');
+            }
+        }
+
+        function changeLineHeight(value) {
+            document.body.classList.remove('line-height-large', 'line-height-extra-large');
+            if (value) {
+                document.body.classList.add(value);
+                localStorage.setItem('smurf_line_height', value);
+            } else {
+                localStorage.removeItem('smurf_line_height');
+            }
+        }
+
+        // PASSWORD GENERATOR
+        document.getElementById('password-length').addEventListener('input', (e) => {
+            document.getElementById('length-display').textContent = e.target.value;
+            generatePassword();
+        });
+
+        document.getElementById('uppercase').addEventListener('change', generatePassword);
+        document.getElementById('lowercase').addEventListener('change', generatePassword);
+        document.getElementById('numbers').addEventListener('change', generatePassword);
+        document.getElementById('symbols').addEventListener('change', generatePassword);
+
+        function generatePassword() {
+            const length = parseInt(document.getElementById('password-length').value);
+            const uppercase = document.getElementById('uppercase').checked ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' : '';
+            const lowercase = document.getElementById('lowercase').checked ? 'abcdefghijklmnopqrstuvwxyz' : '';
+            const numbers = document.getElementById('numbers').checked ? '0123456789' : '';
+            const symbols = document.getElementById('symbols').checked ? '!@#$%^&*()_+-={}[]|:;<>?,./' : '';
+
+            const chars = uppercase + lowercase + numbers + symbols;
+            if (!chars) return;
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            generatedPassword = password;
+            document.getElementById('generated-password').value = password;
+
+            const strength = calculatePasswordStrength(password);
+            const strengthBar = document.getElementById('generated-strength-bar');
+            strengthBar.className = `strength-bar ${strength.class}`;
+            const strengthTexts = { weak: 'Fraca', fair: 'Média', good: 'Boa', strong: 'Muito Forte' };
+            document.getElementById('password-strength').textContent = strengthTexts[strength.level];
+        }
+
+        function saveGeneratedPassword() {
+            if (!generatedPassword) return;
+            document.getElementById('modal-password').value = generatedPassword;
+            openAddPasswordModal();
+        }
+
+        // MODAL
+        function openAddPasswordModal() {
+            document.getElementById('add-password-modal').classList.add('active');
+            document.getElementById('modal-service').focus();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.getElementById('modal-service').value = '';
+            document.getElementById('modal-user').value = '';
+            document.getElementById('modal-password').value = '';
+            document.getElementById('modal-notes').value = '';
+        }
+
+        // PASSWORD VAULT
+        function savePassword() {
+            const service = document.getElementById('modal-service').value.trim();
+            const user = document.getElementById('modal-user').value.trim();
+            const password = document.getElementById('modal-password').value;
+            const notes = document.getElementById('modal-notes').value.trim();
+
+            if (!service || !user || !password) {
+                alert('Preencha os campos obrigatórios');
+                return;
+            }
+
+            passwords.push({ service, user, password, notes, id: Date.now() });
+            localStorage.setItem('smurf_passwords', JSON.stringify(passwords));
+            closeModal('add-password-modal');
+            renderPasswords();
+            updateDashboard();
+        }
+
+        function deletePassword(id) {
+            if (confirm('Tem certeza que deseja deletar esta senha?')) {
+                passwords = passwords.filter(p => p.id !== id);
+                localStorage.setItem('smurf_passwords', JSON.stringify(passwords));
+                renderPasswords();
+                updateDashboard();
+            }
+        }
+
+        function renderPasswords(filter = '') {
+            const container = document.getElementById('passwords-list');
+            container.innerHTML = '';
+
+            const filtered = passwords.filter(p =>
+                p.service.toLowerCase().includes(filter.toLowerCase()) ||
+                p.user.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--color-gray-light); padding: 2rem;">Nenhuma senha salva. Adicione uma agora!</p>';
+                return;
+            }
+
+            filtered.forEach(pwd => {
+                const strength = calculatePasswordStrength(pwd.password);
+                const strengthTexts = { weak: 'Fraca', fair: 'Média', good: 'Boa', strong: 'Muito Forte' };
+                const strengthText = strengthTexts[strength.level];
+
+                const item = document.createElement('div');
+                item.className = 'password-item';
+                item.innerHTML = `
+                    <div class="password-info">
+                        <div class="password-service">${pwd.service}</div>
+                        <div class="password-user">${pwd.user}</div>
+                        <div style="margin-top: 0.5rem;">
+                            <small style="color: var(--color-gray-light);">Força: ${strengthText}</small>
+                            <div class="strength-indicator">
+                                <div class="strength-bar ${strength.class}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="password-actions">
+                        <button class="btn-action" onclick="copyToClipboard('pwd-${pwd.id}')">📋 Copiar</button>
+                        <button class="btn-action" onclick="deletePassword(${pwd.id})">🗑️ Deletar</button>
+                    </div>
+                    <input type="hidden" id="pwd-${pwd.id}" value="${pwd.password}">
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        document.getElementById('search-passwords').addEventListener('input', (e) => {
+            renderPasswords(e.target.value);
+        });
+
+        // DASHBOARD
+        function updateDashboard() {
+            const total = passwords.length;
+            const strong = passwords.filter(p => calculatePasswordStrength(p.password).class === 'strong').length;
+            const weak = passwords.filter(p => calculatePasswordStrength(p.password).class === 'weak').length;
+            const score = total > 0 ? Math.round(((total - weak) / total) * 100) : 0;
+
+            document.getElementById('total-passwords').textContent = total;
+            document.getElementById('strong-passwords').textContent = strong;
+            document.getElementById('weak-passwords').textContent = weak;
+            document.getElementById('security-score').textContent = score + '%';
+
+            // Alertas
+            const alertContainer = document.getElementById('alerts-container');
+            alertContainer.innerHTML = '';
+
+            if (weak > 0) {
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-danger';
+                alert.innerHTML = `⚠️ Você tem ${weak} senha(s) fraca(s). Clique aqui para melhorar.`;
+                alert.style.cursor = 'pointer';
+                alert.addEventListener('click', () => navigateTo('generator'));
+                alertContainer.appendChild(alert);
+            }
+
+            if (total === 0) {
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-warning';
+                alert.innerHTML = `💡 Comece adicionando suas senhas ao Cofre para melhor segurança.`;
+                alertContainer.appendChild(alert);
+            }
+        }
+
+        // IMPORT/EXPORT
+        function exportPasswords() {
+            const dataStr = JSON.stringify(passwords, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `smurf-guardian-backup-${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+        }
+
+        function importPasswords(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        passwords = [...passwords, ...imported];
+                        localStorage.setItem('smurf_passwords', JSON.stringify(passwords));
+                        renderPasswords();
+                        updateDashboard();
+                        alert('✓ Senhas importadas com sucesso!');
+                    }
+                } catch (err) {
+                    alert('❌ Erro ao importar arquivo');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ AVISO: Isso deletará TODAS as suas senhas. Tem certeza?') &&
+                confirm('⛔ ÚLTIMA CONFIRMAÇÃO: Esta ação não pode ser desfeita!')) {
+                passwords = [];
+                localStorage.removeItem('smurf_passwords');
+                renderPasswords();
+                updateDashboard();
+                alert('✓ Dados limpos');
+            }
+        }
+
+        // INIT
+        function init() {
+            // Carregar preferências
+            const darkMode = localStorage.getItem('smurf_dark_mode');
+            if (darkMode === 'false') {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                document.getElementById('toggle-dark-mode').classList.remove('active');
+                document.getElementById('theme-toggle').textContent = '☀️';
+            }
+
+            if (localStorage.getItem('smurf_high_contrast') === 'true') {
+                document.body.classList.add('high-contrast');
+                document.getElementById('toggle-high-contrast').classList.add('active');
+            }
+
+            if (localStorage.getItem('smurf_reduce_motion') === 'true') {
+                document.body.classList.add('reduce-motion');
+                document.getElementById('toggle-reduce-motion').classList.add('active');
+            }
+
+            if (localStorage.getItem('smurf_dyslexia_font') === 'true') {
+                document.body.classList.add('font-dyslexia');
+                document.getElementById('toggle-dyslexia-font').classList.add('active');
+            }
+
+            if (localStorage.getItem('smurf_large_cursor') === 'true') {
+                document.body.classList.add('cursor-large');
+                document.getElementById('toggle-large-cursor').classList.add('active');
+            }
+
+            const fontSize = localStorage.getItem('smurf_font_size');
+            if (fontSize) {
+                document.body.classList.add(fontSize);
+                document.getElementById('font-size').value = fontSize;
+            }
+
+            const lineHeight = localStorage.getItem('smurf_line_height');
+            if (lineHeight) {
+                document.body.classList.add(lineHeight);
+                document.getElementById('line-height').value = lineHeight;
+            }
+
+            generatePassword();
+            renderPasswords();
+            updateDashboard();
+        }
+
+        // FECHAR MODAL AO CLICAR FORA
+        document.getElementById('add-password-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'add-password-modal') {
+                closeModal('add-password-modal');
+            }
+        });
+
+        // ENTER PARA SALVAR
+        document.getElementById('modal-notes').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                savePassword();
+            }
+        });
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
